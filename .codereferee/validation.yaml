@@ -1,0 +1,6 @@
+# CodeReferee 검증 설정. 복원력 결함: replicas 1 — 그 한 대가 죽으면 전면 중단.
+version: 1
+service:
+  port: 8000
+  replicas: 1
+  healthPath: /health
