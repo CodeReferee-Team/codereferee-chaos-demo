@@ -1,0 +1,24 @@
+{
+  "id": "config-required-twoport",
+  "stack": "python",
+  "deploy_shape": "config_required",
+  "expected_plan_source": "ConfigurationRequired",
+  "needs_yaml": false,
+  "resolvable_by": [
+    "deployment_profile",
+    "validation.yaml port"
+  ],
+  "modality": "plan_only",
+  "defect": "none",
+  "defect_probe": null,
+  "expected": {
+    "verdict": "ERROR",
+    "stage": "preflight",
+    "reason_category": "verification_environment_unsupported"
+  },
+  "expected_heal": null,
+  "verified_by": [
+    "resolve_plan@2026-10-11"
+  ],
+  "note": "탈출구 경계를 1급 라벨로. Dockerfile이 포트 2개(EXPOSE 8000/9000)를 노출 -> 진입점 모호 -> resolve_plan이 추론을 거부하고 ConfigurationRequired. yaml은 '전제'가 아니라 '모호할 때의 탈출구'임을 음성 케이스로 보여준다. deployment_profile 또는 validation.yaml의 port 한 줄로 해소. 과장 방지: 이건 결함이 아니라 '설정 필요' 판정이 정답인 케이스."
+}
