@@ -1,0 +1,62 @@
+{
+  "id": "mixed-topology-and-codebug",
+  "stack": "python-fastapi",
+  "deploy_shape": "validation_yaml",
+  "expected_plan_source": "repository_configuration",
+  "needs_yaml": true,
+  "modality": "chaos",
+  "defect": "multi",
+  "defects": [
+    {
+      "kind": "single_replica_topology",
+      "visible": true,
+      "healable": true
+    },
+    {
+      "kind": "code_bug_http_500_offpath",
+      "visible": false,
+      "healable": false,
+      "why_invisible": "healthPath=/health에 고정된 probe가 /quota를 안 침"
+    }
+  ],
+  "defect_probe": {
+    "module": "app",
+    "callable": "compute_quota",
+    "arg": {
+      "name": "free"
+    },
+    "raises": "KeyError"
+  },
+  "expected": {
+    "verdict": "Fail-or-Pass+WARNING",
+    "stage": "runtime",
+    "reason_category": "chaos_single_replica_topology",
+    "note": "복구가 상한 넘으면 Fail→heal, 아니면 Pass+WARNING. verdict 자체보다 '서사 범위'가 이 fixture의 평가 대상."
+  },
+  "expected_heal": {
+    "file": ".codereferee/validation.yaml",
+    "find": "replicas: 1",
+    "replace": "replicas: 2"
+  },
+  "detection_outcome": "partial",
+  "narrative_assertion": {
+    "must_scope_to": "topology (single replica)",
+    "forbidden_claims": [
+      "서비스가 완전히 정상",
+      "기능상 문제 없음",
+      "모든 결함 해소",
+      "코드 버그 없음"
+    ],
+    "rationale": "토폴로지는 보고 고칠 수 있지만 /quota 코드버그는 못 봄. Critic/Refiner가 '다 고쳤다/건강하다'고 과잉주장하면 FAIL."
+  },
+  "verified_by": [
+    "defect_unit",
+    "resolve_plan@2026-10-11"
+  ],
+  "unverified_runtime": [
+    "복합 결함에서의 Judge 판정",
+    "토폴로지 heal 발동",
+    "서사 과잉주장 억제"
+  ],
+  "note": "버킷2(b) 결함 중첩. 한 레포에 토폴로지 결함 + 코드버그 공존. 현 샌박은 evidence로 토폴로지 신호만 주므로 '두 결함을 동시에 분리진단'은 애초에 불가 — 진짜 시험 대상은 '한쪽만 보일 때 Critic이 범위를 정직하게 좁히는가(안 본 기능 정상을 단정 안 하는가)'. eval narrative scorer의 forbidden_claims와 직결."
+}
