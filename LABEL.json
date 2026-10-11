@@ -1,0 +1,33 @@
+{
+  "id": "bug-unprobed-endpoint",
+  "stack": "python-fastapi",
+  "deploy_shape": "stack_detection",
+  "expected_plan_source": "stack_detection",
+  "needs_yaml": false,
+  "modality": "sandbox_smoke",
+  "defect": "code_bug_http_500_offpath",
+  "defect_probe": {
+    "module": "app",
+    "callable": "compute_quota",
+    "arg": {
+      "name": "free"
+    },
+    "raises": "KeyError"
+  },
+  "expected": {
+    "verdict": "Pass",
+    "stage": "runtime",
+    "reason_category": "chaos_recovered_within_budget"
+  },
+  "expected_heal": null,
+  "detection_outcome": "false_negative",
+  "verified_by": [
+    "defect_unit",
+    "resolve_plan@2026-10-11"
+  ],
+  "unverified_runtime": [
+    "Pass verdict + 미탐지 (needs full stack run)"
+  ],
+  "gap": "결함은 /quota에 있는데 샌박 business probe는 healthPath(기본 /)로 고정(execution_plan.py: probePath=plan['healthPath'])이라 /quota를 안 친다. 배포는 healthy(/ 통과) -> chaos probe도 / -> 복구 정상 -> Pass. 결함이 코드에 실재하나 현재 probe 커버리지로는 미탐지.",
+  "note": "탐지 사각(false-negative)을 1급 라벨로 박은 케이스. http500-bug(버그가 / 에 있어 기동 타임아웃으로 '가려짐')의 대조군 — 여기선 버그가 probe 밖이라 '아예 안 보임'. '우리가 못 잡는 것도 못 잡는다고 라벨한다'는 정직성 증거. probe가 임의 경로를 치려면 샌박이 healthPath와 business probePath를 분리해야 함(태우 레인)."
+}
