@@ -1,0 +1,23 @@
+{
+  "id": "dockerfile-healthy",
+  "stack": "python",
+  "deploy_shape": "dockerfile",
+  "expected_plan_source": "dockerfile",
+  "needs_yaml": false,
+  "modality": "chaos",
+  "defect": "none",
+  "expected": {
+    "verdict": "Pass",
+    "stage": "runtime",
+    "reason_category": "chaos_recovered_within_budget"
+  },
+  "expected_heal": null,
+  "verified_by": [
+    "defect_none",
+    "resolve_plan@2026-10-11"
+  ],
+  "unverified_runtime": [
+    "chaos verdict (needs full k8s stack run)"
+  ],
+  "note": "dockerfile shape가 통과하는 baseline. 지금까지 dockerfile 경로는 crashloop(Fail)만 있어 'dockerfile=나쁨'처럼 보였다. 이 fixture가 'EXPOSE 1포트 + 건강한 장수 서버 -> dockerfile shape로 Pass'를 증명해 matrix 구멍을 메운다. stdlib http.server라 의존성 0."
+}
