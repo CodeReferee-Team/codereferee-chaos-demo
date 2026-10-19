@@ -1,0 +1,10 @@
+{
+  "id": "deps-postgres-redis",
+  "purpose": "dependency_database_outage / dependency_redis_outage 시나리오의 대상. 업무 API가 의존성을 직접 쓰므로 장애가 HTTP 503으로 드러나야 한다.",
+  "expected_plan_source": "repository_configuration",
+  "defect_probe": null,
+  "expected": {
+    "dependency_database_outage": "observed, exitCode 0, 장애 중 /api/orders 실패, 해제 후 복구",
+    "dependency_redis_outage": "observed, exitCode 0, 장애 중 /api/session 실패, 해제 후 복구"
+  }
+}
