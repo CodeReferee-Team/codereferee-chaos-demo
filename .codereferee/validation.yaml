@@ -1,20 +1,12 @@
-# 의존성 장애 시나리오(DB/Redis) 검증용. 업무 API가 각 의존성을 직접 쓴다.
+# 힐링 루프 검증용. Redis 장애가 걷힌 뒤에도 업무 API가 돌아오지 않는 결함을 담았다.
 version: 1
 service:
   port: 8000
   healthPath: /health
   env:
-    DB_HOST: "{{dependency.orders-db.host}}"
-    DB_PORT: "{{dependency.orders-db.port}}"
-    DB_NAME: "{{dependency.orders-db.database}}"
-    DB_USER: "{{dependency.orders-db.username}}"
-    DB_PASSWORD: "{{dependency.orders-db.password}}"
     REDIS_HOST: "{{dependency.session-cache.host}}"
     REDIS_PORT: "{{dependency.session-cache.port}}"
 dependencies:
-  orders-db:
-    type: postgres
-    probePath: /api/orders
   session-cache:
     type: redis
     probePath: /api/session
