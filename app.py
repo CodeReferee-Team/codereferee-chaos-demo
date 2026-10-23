@@ -10,13 +10,18 @@
 import os
 
 import redis
+from redis.backoff import NoBackoff
+from redis.retry import Retry
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
+# redis-py 6 이상은 기본으로 타임아웃을 10번까지 재시도해서 한 호출이 20초 넘게 버틴다.
+# 15초짜리 장애가 그 안에 걷히면 예외가 나지 않아 결함이 드러나지 않는다(2026-10-23 실서버).
+# 재시도를 끄고 2초 만에 실패하게 해서 차단기가 실제로 열리게 한다.
 cache = redis.Redis(host=os.environ['REDIS_HOST'], port=int(os.environ['REDIS_PORT']),
-                    socket_timeout=2, socket_connect_timeout=2)
+                    socket_timeout=2, socket_connect_timeout=2, retry=Retry(NoBackoff(), 0))
 
 # 캐시가 한 번 실패하면 더 이상 부르지 않는다.
 cache_broken = False
