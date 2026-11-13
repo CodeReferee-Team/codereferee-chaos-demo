@@ -1,6 +1,28 @@
-# CodeReferee 검증 설정. 복원력 결함: replicas 1 — 그 한 대가 죽으면 전면 중단.
-version: 1
-service:
-  port: 8000
-  replicas: 1
-  healthPath: /health
+version: 3
+repositories:
+  upstream:
+    url: https://github.com/render-examples/fastapi.git
+    commitSha: f829276c68503f7afae195c3e3f778f085242cb0
+services:
+  gateway:
+    buildContext: .
+    port: 8000
+    healthPath: /health
+    dependsOn: [api]
+    resources: {cpu: 1000m, memory: 256Mi}
+    env:
+      READY_DELAY: '0'
+      UPSTREAM_URL: '{{service.api.url}}'
+  api:
+    repository: upstream
+    buildContext: .
+    port: 8000
+    healthPath: /
+    resources: {cpu: 1000m, memory: 256Mi}
+entryService: gateway
+targetService: api
+probePath: /api/items/1
+probeSpec:
+  steps:
+    - path: /api/items/1
+      expect: {item_id: 1}

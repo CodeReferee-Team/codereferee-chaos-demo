@@ -1,6 +1,8 @@
 """작은 HTTP 서비스. 복원력 데모용 — 기동이 느려서(READY_DELAY) 단일 replica가
 죽으면 그 시간만큼 전면 중단된다. replica를 늘리면 다른 파드가 그 틈을 메운다."""
 import os, threading, time
+import json
+from urllib.request import urlopen
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
@@ -25,3 +27,10 @@ def root():
 @app.get("/health")
 def health():
     return JSONResponse({"ready": _ready}, status_code=200 if _ready else 503)
+
+
+@app.get("/api/items/{item_id}")
+def proxy_item(item_id: int):
+    upstream = os.environ["UPSTREAM_URL"].rstrip("/")
+    with urlopen(f"{upstream}/items/{item_id}", timeout=2) as response:
+        return json.load(response)
