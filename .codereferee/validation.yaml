@@ -25,4 +25,4 @@ probePath: /api/items/1
 probeSpec:
   steps:
     - path: /api/items/1
-      expect: {item_id: 1}
+      expect: {item_id: 1, patched: true}
