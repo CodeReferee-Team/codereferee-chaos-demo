@@ -1,0 +1,11 @@
+version: 1
+service:
+  port: 8000
+  healthPath: /health
+  env:
+    REDIS_HOST: '{{dependency.redis.host}}'
+    REDIS_PORT: '{{dependency.redis.port}}'
+dependencies:
+  redis:
+    type: redis
+    probePath: /items/1

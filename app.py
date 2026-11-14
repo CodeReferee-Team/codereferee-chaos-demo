@@ -1,18 +1,38 @@
-from fastapi import FastAPI
+import os
+
+import redis
+from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
+client = redis.Redis(
+    host=os.environ.get("REDIS_HOST", "localhost"),
+    port=int(os.environ.get("REDIS_PORT", "6379")),
+    socket_connect_timeout=1,
+    socket_timeout=1,
+)
+dependency_failed = False
 
 
-def compute_quota(plan: dict) -> int:
-    # BUG: assumes the "limit" key always exists. Free plans omit it,
-    # so the "/" handler raises KeyError at request time -> HTTP 500.
-    return plan["limit"] * 2
+def read_item(item_id: int):
+    global dependency_failed
+    if dependency_failed:
+        raise HTTPException(status_code=503, detail="Dependency circuit is open")
+    try:
+        client.ping()
+    except redis.RedisError:
+        dependency_failed = True
+        raise HTTPException(status_code=503, detail="Redis is unavailable")
+    return {"item_id": item_id}
 
 
 @app.get("/")
 def root():
-    plan = {"name": "free"}  # no "limit" key
-    return {"quota": compute_quota(plan)}
+    return read_item(1)
+
+
+@app.get("/items/{item_id}")
+def item(item_id: int):
+    return read_item(item_id)
 
 
 @app.get("/health")
