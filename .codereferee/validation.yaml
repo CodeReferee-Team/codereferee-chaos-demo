@@ -1,8 +1,9 @@
 version: 3
 repositories:
   upstream:
-    url: https://github.com/render-examples/fastapi.git
-    commitSha: f829276c68503f7afae195c3e3f778f085242cb0
+    url: https://github.com/CodeReferee-Team/codereferee-chaos-demo.git
+    branch: test/redis-reconnect-repair
+    commitSha: ca811ac34da40513a26ba8ed2220ee61087e44fa
 services:
   gateway:
     buildContext: .
@@ -17,8 +18,15 @@ services:
     repository: upstream
     buildContext: .
     port: 8000
-    healthPath: /
+    healthPath: /health
     resources: {cpu: 1000m, memory: 256Mi}
+    env:
+      REDIS_HOST: '{{dependency.redis.host}}'
+      REDIS_PORT: '{{dependency.redis.port}}'
+dependencies:
+  redis:
+    type: redis
+    probePath: /api/items/1
 entryService: gateway
 targetService: api
 probePath: /api/items/1
